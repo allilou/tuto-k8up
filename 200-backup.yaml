@@ -1,0 +1,21 @@
+apiVersion: k8up.io/v1
+kind: Backup
+metadata:
+  name: backup-test
+  namespace: test
+spec:
+  failedJobsHistoryLimit: 2
+  successfulJobsHistoryLimit: 2
+  backend:
+    repoPasswordSecretRef:
+      name: backup-test-creds
+      key: password
+    s3:
+      endpoint: https://s3.adexcloud.dz
+      bucket: backup-test
+      accessKeyIDSecretRef:
+        name: backup-test-creds
+        key: s3-username
+      secretAccessKeySecretRef:
+        name: backup-test-creds
+        key: s3-password
