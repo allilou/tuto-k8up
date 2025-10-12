@@ -40,28 +40,53 @@ Install K8up in Minikube:
 ```bash
 helm repo add k8up-io https://k8up-io.github.io/k8up
 helm repo update
-helm install k8up-io/k8up --generate-name
+# helm install k8up-io/k8up --generate-name
+helm upgrade --install k8up k8up-io/k8up --set k8up.envVars[0].name=PROM_URL --set k8up.envVars[0].value=""
+
 ```
 
-## Deploy databases
+## Deploy databases and Apps
 
 ```bash
 create ns test
 kubectl apply -f 000-secrets.yaml
-kubectl apply -f 110-mysql-statefulset.yaml
-kubectl apply -f 120-postgres-statefulset.yaml
+kubectl apply -f 110-postgres-statefulset.yaml
+kubectl apply -f 120-mysql-statefulset.yaml
+kubectl apply -f 140-wordpress-pvc.yaml
 ```
 
-## Backup databases 
+For **Odoo**
+```bash
+kubectl apply -f 150-odoo-deployment.yaml
+kubectl -n test port-forward svc/odoo 8069:8069
+```
+Open a browser at [http://localhost:8069](http://localhost:8069)
+Set Odoo master password to `odoo` and create a new database named `odoo` 
 
+
+## Backup databases, PVCS, and Odoo 
+
+### Manual backup
 ```bash
 kubectl apply -f 200-backup.yaml
 
 kubectl get all
-kubectl logs -f --since=60 deployment.apps/k8up-1760218159
+kubectl logs -f --since=60 deployment.apps/k8up-<........>
 
 kubectl -n test get all
-kubectl -n test logs -f pod/backup-backup-test-prebackup-mss6m
+kubectl -n test logs -f pod/backup-backup-test-<.............>
+
+restic snapshots
+```
+
+### Scheduled backup
+
+```bash
+kubectl apply -f 300-schedule.yaml
+
+kubectl -n test describe  schedule  schedule-test
+
+restic snapshots
 ```
 
 
@@ -83,7 +108,7 @@ restic backup /path/to/local/file.txt
 restic snapshots
 ```
 
-## Restore databases 
+## Restore databases, PVCs and others
 
 ```bash
 export RESTIC_REPOSITORY="s3:https://s3.adexcloud.dz/backup-test"

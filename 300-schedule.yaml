@@ -1,0 +1,37 @@
+apiVersion: k8up.io/v1
+kind: Schedule
+metadata:
+  name: schedule-test
+  namespace: test
+
+spec:
+  backend:
+    repoPasswordSecretRef:
+      name: backup-test-creds
+      key: password
+    s3:
+      endpoint: https://s3.adexcloud.dz
+      bucket: backup-test
+      accessKeyIDSecretRef:
+        name: backup-test-creds
+        key: s3-username
+      secretAccessKeySecretRef:
+        name: backup-test-creds
+        key: s3-password
+  # Use https://crontab.guru to get more values
+  backup:
+    schedule: "*/2 * * * *" # Every 2 minutes
+    # schedule: "0 0 * * 6" # Every Saturday at 0
+    failedJobsHistoryLimit: 2
+    successfulJobsHistoryLimit: 2
+    # optional
+    #promURL: https://prometheus-io-instance:8443
+  check:
+    schedule: "0 1 * * 1" # Every Monday at 1
+    # optional
+    #promURL: https://prometheus-io-instance:8443
+  prune:
+    schedule: "0 1 * * 0" # Every Sunday at 1
+    retention:
+      keepLast: 5
+      keepDaily: 14
