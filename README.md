@@ -48,14 +48,14 @@ helm install k8up-io/k8up --generate-name
 ```bash
 create ns test
 kubectl apply -f 000-secrets.yaml
-kubectl apply -f 120-mysql-statefulset.yaml
+kubectl apply -f 110-mysql-statefulset.yaml
 kubectl apply -f 120-postgres-statefulset.yaml
 ```
 
 ## Backup databases 
 
 ```bash
-kubectl apply -f backup.yaml
+kubectl apply -f 200-backup.yaml
 
 kubectl get all
 kubectl logs -f --since=60 deployment.apps/k8up-1760218159
@@ -63,6 +63,7 @@ kubectl logs -f --since=60 deployment.apps/k8up-1760218159
 kubectl -n test get all
 kubectl -n test logs -f pod/backup-backup-test-prebackup-mss6m
 ```
+
 
 ## Debug rustic 
 
@@ -81,6 +82,17 @@ restic backup /path/to/local/file.txt
 # List snapshots
 restic snapshots
 ```
+
+## Restore databases 
+
+```bash
+export RESTIC_REPOSITORY="s3:https://s3.adexcloud.dz/backup-test"
+export AWS_ACCESS_KEY_ID="your-access-key"
+export AWS_SECRET_ACCESS_KEY="your-secret-key"
+restic snapshots
+restic restore XXXXX --target ./restore
+```
+
 
 ## Useful links 
 - [https://docs.k8up.io/k8up/2.13/tutorials/tutorial.html](https://docs.k8up.io/k8up/2.13/tutorials/tutorial.html)
