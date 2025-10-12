@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: mongodb
+  name: mongodb
+  namespace: test
+
+spec:
+  selector:
+    matchLabels:
+      app: mongodb
+  serviceName: mongodb
+  replicas: 1
+
+  template:
+    metadata:
+      labels:
+        app: mongodb
+      annotations:
+        k8up.io/backupcommand: /bin/bash -c 'mongodump --archive --gzip --username "${MONGO_INITDB_ROOT_USERNAME}" --password "${MONGO_INITDB_ROOT_PASSWORD}" --authenticationDatabase admin'
+    spec:
+      containers:
+        - image: mongo:6.0
+          name: mongodb
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: root
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backup-test-creds
+                  key: db-password
+          ports:
+            - containerPort: 27017
+              name: mongodb
+         
