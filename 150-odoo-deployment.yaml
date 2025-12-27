@@ -17,7 +17,7 @@ spec:
       annotations:
         # 🧠 K8up backup: dumps both database and filestore to stdout
         # Using "-" as output means "write to stdout", perfect for restic
-        k8up.io/backupcommand: /bin/bash -c 'curl -s -X POST -F "master_pwd=${MASTER_PASSWORD}" -F "name=${ODOO_DATABASE}" -o - http://localhost:8069/web/database/backup'
+        k8up.io/backupcommand: /bin/bash -c 'curl -s -X POST --data-raw "master_pwd=${MASTER_PASSWORD}&name=${ODOO_DATABASE}&backup_format=zip" -o - http://localhost:8069/web/database/backup'
 
     spec:
       containers:
